@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate Design Editor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --p:#fff; --s:#2c3e50; --acc:#667eea; --bg:#34495e; }
+        body { margin: 0; display: flex; height: 100vh; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--s); }
+        
+        #sidebar { 
+            width: 350px; background: var(--p); padding: 25px; box-shadow: 2px 0 15px #000; 
+            overflow-y: auto; z-index: 5; 
+        }
+        
+        #canvas-box { 
+            flex-grow: 1; display: flex; align-items: center; justify-content: center; 
+            overflow: auto; padding: 20px; 
+        }
+        
+        .tool-group { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; font-size: 13px; }
+        
+        input, select, button { 
+            width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; 
+            border-radius: 6px; box-sizing: border-box; font-size: 12px;
+        }
+        
+        .tool-btn { 
+            cursor: pointer; background: #ecf0f1; border: 1px solid #ccc; font-weight: bold; 
+            transition: 0.3s; color:#333; font-size:11px; padding: 8px;
+        }
+        
+        .tool-btn:hover { background: #dde4e6; }
+        
+        .save-btn { 
+            background: var(--acc); color: white; border: none; padding: 12px; 
+            font-weight: bold; font-size:14px; margin-top: 20px; cursor: pointer; transition: 0.3s;
+        }
+        
+        .save-btn:hover { background: #5568d3; }
+        
+        #properties-panel { 
+            background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #ddd; 
+            display: none; margin-top:10px; 
+        }
+        
+        canvas { 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); background: white; border: 1px solid #000; 
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .btn-group button {
+            margin: 0;
+            padding: 8px;
+            font-size: 11px;
+        }
+        
+        h3 { margin-top: 0; color: #2c3e50; font-size: 18px; }
+        
+        .header-link {
+            text-decoration: none; color: #7f8c8d; font-size: 13px; display: inline-block; 
+            margin-bottom: 15px;
+        }
+        
+        #status_msg {
+            text-align: center;
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <a href="/admin/dashboard" class="header-link"><i class="fa fa-arrow-left"></i> Back</a>
+    
+    <h3><i class="fa fa-paint-brush"></i> Design Editor</h3>
+    
+    <input type="text" id="tpl_name" placeholder="Certificate Name">
+    
+    <div class="tool-group">
+        <label><i class="fas fa-image"></i> Background Image</label>
+        <input type="file" id="bg_upload" accept="image/*">
+    </div>
+
+    <div class="tool-group">
+        <label><i class="fas fa-plus"></i> Add Elements</label>
+        <div class="btn-group">
+            <button onclick="addText('Student Name')" class="tool-btn">+ Student Name</button>
+            <button onclick="addText('Course')" class="tool-btn">+ Course</button>
+            <button onclick="addText('Date')" class="tool-btn">+ Date</button>
+            <button onclick="addQR()" class="tool-btn"><i class="fas fa-qrcode"></i> QR Code</button>
+        </div>
+        <input type="text" id="custom_var" placeholder="Custom Variable Name">
+        <button onclick="addText(null)" class="tool-btn" style="background:#27ae60; color:white; margin-top: 8px;">+ Custom Variable</button>
+    </div>
+
+    <div id="properties-panel">
+        <label><strong>Element Properties</strong></label>
+        
+        <label>Font Family (50+ Fonts)</label>
+        <select id="ffamily" onchange="updateObjDetailed()">
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Palatino Linotype">Palatino Linotype</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Bookman">Bookman</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Impact">Impact</option>
+            <option value="Lucida Console">Lucida Console</option>
+            <option value="Tahoma">Tahoma">
+            <option value="Lucida Grande">Lucida Grande</option>
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Cambria">Cambria</option>
+            <option value="Candara">Candara</option>
+            <option value="Consolas">Consolas</option>
+            <option value="Constantia">Constantia</option>
+            <option value="Corbel">Corbel</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Gill Sans">Gill Sans</option>
+            <option value="Perpetua">Perpetua</option>
+            <option value="Perpetua Titling MT">Perpetua Titling MT</option>
+            <option value="Century Gothic">Century Gothic</option>
+            <option value="Century Schoolbook">Century Schoolbook</option>
+            <option value="Palatino">Palatino</option>
+            <option value="Rockwell">Rockwell</option>
+            <option value="Rockwell Extra Bold">Rockwell Extra Bold</option>
+            <option value="Snap ITC">Snap ITC</option>
+            <option value="Copperplate">Copperplate</option>
+            <option value="Copperplate Gothic">Copperplate Gothic</option>
+            <option value="Curlz MT">Curlz MT</option>
+            <option value="Edwardian Script ITC">Edwardian Script ITC</option>
+            <option value="Engravers MT">Engravers MT</option>
+            <option value="Engraver's Old English MT">Engraver's Old English MT</option>
+            <option value="Felix Titling">Felix Titling</option>
+            <option value="Footlight MT Light">Footlight MT Light</option>
+            <option value="French Script MT">French Script MT</option>
+            <option value="Gigi">Gigi</option>
+            <option value="Gill Sans Ultra Bold">Gill Sans Ultra Bold</option>
+            <option value="Gill Sans MT">Gill Sans MT</option>
+            <option value="Gloucester MT Extra Condensed">Gloucester MT Extra Condensed</option>
+            <option value="Goudy Old Style">Goudy Old Style</option>
+            <option value="Goudy Stout">Goudy Stout</option>
+            <option value="Habibi">Habibi</option>
+            <option value="Harlow Solid Italic">Harlow Solid Italic</option>
+            <option value="Harrington">Harrington</option>
+            <option value="High Tower Text">High Tower Text</option>
+        </select>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px;">
+            <div>
+                <label style="font-size: 12px;">Size</label>
+                <input type="number" id="fsize" onchange="updateObjDetailed()" value="24" style="padding: 6px; margin: 0;">
+            </div>
+            <div>
+                <label style="font-size: 12px;">Color</label>
+                <input type="color" id="fcolor" onchange="updateObjDetailed()" style="padding: 2px; width: 100%; height: 100%; margin: 0; cursor: pointer;">
+            </div>
+            <div>
+                <label style="font-size: 12px;">Bold</label>
+                <button type="button" id="bold-btn" onclick="toggleBold()" class="tool-btn" style="font-weight: bold; background: #ccc; margin: 0; padding: 6px;">B</button>
+            </div>
+        </div>
+        
+        <button onclick="deleteSelected()" class="tool-btn" style="background: #e74c3c; color: white; margin-top: 15px; width: 100%;">
+            <i class="fa fa-trash"></i> Delete Object
+        </button>
+    </div>
+
+    <button onclick="saveTemplateDetailed()" class="save-btn">
+        <i class="fa fa-save"></i> SAVE DESIGN
+    </button>
+    <div id="status_msg"></div>
+</div>
+
+<div id="canvas-box">
+    <canvas id="c" width="595" height="842"></canvas>
+</div>
+
+<script>
+    const canvas = new fabric.Canvas('c');
+    let currentBgFilename = "";
+    let activeTid = "{{ template_id or '' }}";
+    let isEditingBold = false;
+
+    canvas.on('selection:created', (e) => showPropertiesDetailed(e.selected[0]));
+    canvas.on('selection:updated', (e) => showPropertiesDetailed(e.selected[0]));
+    canvas.on('selection:cleared', () => document.getElementById('properties-panel').style.display = 'none');
+
+    document.getElementById('bg_upload').onchange = function(e) {
+        if(!e.target.files[0]) return;
+        
+        let formData = new FormData();
+        formData.append('file', e.target.files[0]);
+        setMsg("Uploading background...", "#667eea");
+
+        fetch('/admin/upload-bg', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            currentBgFilename = data.url;
+            setMsg("Background loaded!", "#2ecc71");
+            fabric.Image.fromURL(data.url, function(img) {
+                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                    scaleX: canvas.width / img.width,
+                    scaleY: canvas.height / img.height
+                });
+            });
+        }).catch(e => setMsg("Upload error", "red"));
+    };
+
+    function addText(predefinedVal) {
+        let val = predefinedVal;
+        if(!val) {
+            val = document.getElementById('custom_var').value;
+            if(!val) return alert("Enter variable name!");
+        }
+        
+        const text = new fabric.IText(val, { 
+            left: 100, top: 100, fontSize: 24, fontFamily: 'Arial', fontWeight: 'normal'
+        });
+        canvas.add(text);
+        canvas.setActiveObject(text);
+        if(!predefinedVal) document.getElementById('custom_var').value = "";
+    }
+
+    function addQR() {
+        const rect = new fabric.Rect({ 
+            left: 100, top: 200, width: 80, height: 80, 
+            fill: '#ddd', stroke: '#000', strokeDashArray: [5, 5] 
+        });
+        rect.isQR = true;
+        canvas.add(rect);
+        canvas.setActiveObject(rect);
+    }
+
+    function showPropertiesDetailed(obj) {
+        if(obj.isQR) {
+            document.getElementById('properties-panel').style.display = 'none';
+            return;
+        }
+        document.getElementById('properties-panel').style.display = 'block';
+        document.getElementById('fsize').value = obj.fontSize;
+        document.getElementById('fcolor').value = obj.fill;
+        document.getElementById('ffamily').value = obj.fontFamily;
+        isEditingBold = obj.fontWeight === 'bold';
+        document.getElementById('bold-btn').style.background = isEditingBold ? '#aaa' : '#ccc';
+    }
+
+    function updateObjDetailed() {
+        let obj = canvas.getActiveObject();
+        if(!obj || obj.isQR) return;
+
+        obj.set({
+            fontSize: parseInt(document.getElementById('fsize').value),
+            fill: document.getElementById('fcolor').value,
+            fontFamily: document.getElementById('ffamily').value
+        });
+        canvas.renderAll();
+    }
+
+    function toggleBold() {
+        let obj = canvas.getActiveObject();
+        if(!obj || obj.isQR) return;
+
+        isEditingBold = !isEditingBold;
+        obj.fontWeight = isEditingBold ? 'bold' : 'normal';
+        document.getElementById('bold-btn').style.background = isEditingBold ? '#aaa' : '#ccc';
+        canvas.renderAll();
+    }
+
+    function deleteSelected() {
+        let obj = canvas.getActiveObject();
+        if(obj) canvas.remove(obj);
+        document.getElementById('properties-panel').style.display = 'none';
+    }
+
+    function setMsg(m, c) {
+        let e = document.getElementById('status_msg');
+        e.innerText = m; e.style.color = c; e.style.display = 'block';
+    }
+
+    if (activeTid && activeTid !== "None" && activeTid !== "") {
+        fetch('/admin/get-template-data/' + activeTid)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('tpl_name').value = data.name;
+            currentBgFilename = data.bg;
+            setMsg("Loading template...", "#667eea");
+
+            fabric.Image.fromURL(data.bg, function(img) {
+                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                    scaleX: canvas.width / img.width,
+                    scaleY: canvas.height / img.height
+                });
+                
+                data.elements.forEach(el => {
+                    let obj;
+                    if (el.is_qr) {
+                        obj = new fabric.Rect({ 
+                            left: (el.x_pct * canvas.width) / 100, 
+                            top: (el.y_pct * canvas.height) / 100, 
+                            width: 80, height: 80, fill: '#ddd', stroke: '#000', strokeDashArray: [5, 5] 
+                        });
+                        obj.isQR = true;
+                    } else {
+                        obj = new fabric.IText(el.el_name, {
+                            left: (el.x_pct * canvas.width) / 100,
+                            top: (el.y_pct * canvas.height) / 100,
+                            fontSize: el.size_pct,
+                            fill: el.f_color,
+                            fontFamily: el.f_family,
+                            fontWeight: el.is_bold ? 'bold' : 'normal'
+                        });
+                    }
+                    canvas.add(obj);
+                });
+                canvas.renderAll();
+                setMsg("Ready!", "#2ecc71");
+            });
+        }).catch(e => setMsg("Error loading", "red"));
+    }
+
+    function saveTemplateDetailed() {
+        const tName = document.getElementById('tpl_name').value;
+        if (!tName || !currentBgFilename) { alert("Name and background required!"); return; }
+
+        setMsg("Saving...", "#667eea");
+
+        const elements = canvas.getObjects().map(obj => ({
+            name: obj.text || "QR",
+            x_pct: (obj.left / canvas.width) * 100,
+            y_pct: (obj.top / canvas.height) * 100,
+            size_pct: obj.isQR ? 80 : obj.fontSize,
+            color: obj.fill,
+            font: obj.fontFamily,
+            is_qr: !!obj.isQR,
+            is_bold: obj.fontWeight === 'bold'
+        }));
+
+        fetch('/admin/save-template', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                id: (activeTid && activeTid !== "None") ? activeTid : null, 
+                name: tName, 
+                bg: currentBgFilename, 
+                elements: elements 
+            })
+        }).then(r => r.json()).then(data => {
+            alert("Design saved!");
+            window.location.href = '/admin/dashboard';
+        }).catch(e => setMsg("Save error", "red"));
+    }
+</script>
+</body>
+</html>

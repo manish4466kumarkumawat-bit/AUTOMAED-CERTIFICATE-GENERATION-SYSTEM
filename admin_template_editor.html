@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Template Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 { font-size: 24px; color: #2c3e50; }
+        .header small { color: #666; }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 0 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .preview-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .preview-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            aspect-ratio: 842 / 595;
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .preview-element {
+            position: absolute;
+            border: 2px solid red;
+            padding: 5px;
+            background: rgba(255, 0, 0, 0.1);
+            font-size: 10px;
+            color: red;
+            border-radius: 3px;
+        }
+        
+        .controls-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+        }
+        
+        .control-section h3 {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-blue { background: #667eea; }
+        .btn-blue:hover { background: #5568d3; }
+        .btn-green { background: #2ecc71; width: 100%; }
+        .btn-green:hover { background: #27ae60; }
+        .btn-red { background: #e74c3c; }
+        
+        .elements-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+        }
+        
+        .element-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .element-item button {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        @media (max-width: 1000px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fas fa-cogs"></i> Edit Global Template</h1>
+    <small>Changes will be visible to all companies immediately</small>
+</div>
+
+<div class="container">
+    <!-- PREVIEW PANEL -->
+    <div class="preview-panel">
+        <div class="preview-title">Template Preview</div>
+        <div class="preview-frame" id="previewFrame"
+             style="background-image: url('/static/templates/{{ bg_path }}')">
+        </div>
+    </div>
+    
+    <!-- CONTROLS PANEL -->
+    <div class="controls-panel">
+        <div class="control-section">
+            <h3>Template Name</h3>
+            <input type="text" id="templateName" value="{{ template_name }}" placeholder="Template name">
+        </div>
+        
+        <div class="control-section">
+            <h3>Add Element</h3>
+            <input type="text" id="elementName" placeholder="e.g., Name, Course, Date">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="number" id="elementX" placeholder="X %" min="0" max="100" step="1" value="50">
+                <input type="number" id="elementY" placeholder="Y %" min="0" max="100" step="1" value="50">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="number" id="elementSize" placeholder="Size" min="8" max="72" step="1" value="24">
+                <input type="color" id="elementColor" value="#000000">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="isQR"> QR Code
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="isBold"> Bold
+                </label>
+            </div>
+            <button class="btn btn-blue" onclick="addElement()" style="width: 100%; margin-top: 10px;">
+                <i class="fas fa-plus"></i> Add Element
+            </button>
+        </div>
+        
+        <div class="control-section">
+            <h3>Elements</h3>
+            <div class="elements-list" id="elementsList">
+                <!-- Elements will load here -->
+            </div>
+        </div>
+        
+        <button class="btn btn-green" onclick="saveTemplate()">
+            <i class="fas fa-save"></i> Save Template
+        </button>
+    </div>
+</div>
+
+<script>
+let elements = [];
+const tid = {{ template_id }};
+
+// Load existing elements
+function loadElements() {
+    fetch(`/admin/get-template-data/${tid}`)
+        .then(r => r.json())
+        .then(data => {
+            elements = data.elements.map(e => ({
+                name: e.el_name,
+                x_pct: e.x_pct,
+                y_pct: e.y_pct,
+                size_pct: e.size_pct,
+                color: e.f_color,
+                font: e.f_family,
+                is_qr: e.is_qr,
+                is_bold: e.is_bold
+            }));
+            renderPreview();
+            renderElementsList();
+        });
+}
+
+function addElement() {
+    const name = document.getElementById('elementName').value;
+    if (!name) return;
+    
+    const el = {
+        name: name,
+        x_pct: parseFloat(document.getElementById('elementX').value),
+        y_pct: parseFloat(document.getElementById('elementY').value),
+        size_pct: parseFloat(document.getElementById('elementSize').value),
+        color: document.getElementById('elementColor').value,
+        font: 'Arial',
+        is_qr: document.getElementById('isQR').checked ? 1 : 0,
+        is_bold: document.getElementById('isBold').checked ? 1 : 0
+    };
+    
+    elements.push(el);
+    renderPreview();
+    renderElementsList();
+    
+    document.getElementById('elementName').value = '';
+}
+
+function renderPreview() {
+    const frame = document.getElementById('previewFrame');
+    frame.querySelectorAll('.preview-element').forEach(el => el.remove());
+    
+    elements.forEach((el, idx) => {
+        const div = document.createElement('div');
+        div.className = 'preview-element';
+        div.style.left = (el.x_pct - 5) + '%';
+        div.style.top = (el.y_pct - 5) + '%';
+        div.textContent = el.name;
+        frame.appendChild(div);
+    });
+}
+
+function renderElementsList() {
+    const list = document.getElementById('elementsList');
+    list.innerHTML = '';
+    
+    elements.forEach((el, idx) => {
+        const div = document.createElement('div');
+        div.className = 'element-item';
+        div.innerHTML = `
+            <span>${el.name} (${el.x_pct}%, ${el.y_pct}%)</span>
+            <button class="btn btn-red" onclick="removeElement(${idx})">Remove</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function removeElement(idx) {
+    elements.splice(idx, 1);
+    renderPreview();
+    renderElementsList();
+}
+
+function saveTemplate() {
+    const data = {
+        id: tid,
+        name: document.getElementById('templateName').value,
+        elements: elements
+    };
+    
+    fetch('/admin/edit-template/' + tid, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('✓ Global template saved! All companies can now use this template.');
+            window.location.href = '/admin/dashboard';
+        } else {
+            alert('✗ Error: ' + data.message);
+        }
+    });
+}
+
+// Load on page load
+document.addEventListener('DOMContentLoaded', loadElements);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .verify-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .status-icon.success {
+            color: #27ae60;
+        }
+
+        .status-icon.fail {
+            color: #e74c3c;
+        }
+
+        h2 {
+            margin: 10px 0;
+            color: #2c3e50;
+            font-size: 28px;
+        }
+
+        h2.success {
+            color: #27ae60;
+        }
+
+        h2.fail {
+            color: #e74c3c;
+        }
+
+        .message {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #555;
+            font-weight: bold;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            word-break: break-all;
+        }
+
+        .btn-home {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-home:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="verify-card">
+    {% if cert %}
+        <div class="status-icon success">
+            <i class="fas fa-certificate"></i>
+        </div>
+        <h2 class="success"><i class="fas fa-check-circle"></i> Verified!</h2>
+        <p class="message">This certificate is authentic and registered in our blockchain system.</p>
+
+        <div class="details">
+            {% if cert['name'] and cert['name'] != 'nan' %}
+            <div class="detail-item">
+                <span class="detail-label">Student Name:</span>
+                <span class="detail-value">{{ cert['name'] }}</span>
+            </div>
+            {% endif %}
+            
+            {% if cert['course'] and cert['course'] != 'nan' %}
+            <div class="detail-item">
+                <span class="detail-label">Course/Event:</span>
+                <span class="detail-value">{{ cert['course'] }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="detail-item">
+                <span class="detail-label">Issue Date:</span>
+                <span class="detail-value">{{ cert['date'] }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Certificate ID:</span>
+                <span class="detail-value" style="font-family: monospace; color: #667eea;">{{ cert['id'] }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Email Status:</span>
+                <span class="detail-value">
+                    {% if cert['email_sent'] %}
+                    <i class="fas fa-check" style="color: #27ae60;"></i> Delivered
+                    {% else %}
+                    <i class="fas fa-file" style="color: #e67e22;"></i> Generated
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    {% else %}
+        <div class="status-icon fail">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2 class="fail"><i class="fas fa-times-circle"></i> Invalid Certificate</h2>
+        <p class="message">We could not find any record with this ID in our system. Please verify the certificate ID and try again.</p>
+    {% endif %}
+
+    <a href="/" class="btn-home">
+        <i class="fas fa-home"></i> Back to Home
+    </a>
+</div>
+
+</body>
+</html>

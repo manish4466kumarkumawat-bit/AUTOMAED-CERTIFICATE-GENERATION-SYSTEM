@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Configuration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; color: #333; }
+        
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 20px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 { font-size: 28px; color: #2c3e50; }
+        
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;
+            color: white; text-decoration: none; font-weight: bold; display: inline-flex;
+            align-items: center; gap: 8px; transition: 0.3s;
+        }
+        
+        .btn-blue { background: #667eea; }
+        .btn-blue:hover { background: #5568d3; }
+        .btn-gray { background: #95a5a6; }
+        .btn-gray:hover { background: #7f8c8d; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 30px; }
+        
+        .card {
+            background: white; padding: 25px; border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        
+        .card h2 { margin-bottom: 20px; color: #2c3e50; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; font-size: 14px; }
+        input, textarea, select {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 6px; font-family: inherit; font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
+        
+        textarea { min-height: 150px; resize: vertical; font-family: 'Courier New'; }
+        
+        .variable-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .variable-buttons button {
+            padding: 8px 12px; background: #e8f4f8; border: 1px solid #667eea;
+            color: #667eea; border-radius: 4px; cursor: pointer; font-size: 12px;
+            transition: 0.3s;
+        }
+        
+        .variable-buttons button:hover { background: #667eea; color: white; }
+        
+        .info-box {
+            background: #f8f9fa; padding: 15px; border-radius: 6px;
+            border-left: 4px solid #667eea; margin-top: 15px;
+        }
+        
+        .preview-section {
+            background: #f8f9fa; padding: 15px; border-radius: 8px;
+            border-left: 4px solid #667eea; margin-top: 15px; display: none;
+        }
+        
+        .preview-section h4 { margin-bottom: 10px; color: #2c3e50; }
+        
+        .preview-content {
+            background: white; padding: 15px; border-radius: 4px;
+            max-height: 300px; overflow-y: auto; font-size: 13px;
+            line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;
+            border: 1px solid #ddd;
+        }
+        
+        .status { padding: 12px; border-radius: 4px; margin: 15px 0; display: none; font-weight: bold; }
+        .status.success { background: #d4edda; color: #155724; display: block; }
+        .status.error { background: #f8d7da; color: #721c24; display: block; }
+        
+        .button-group { display: flex; gap: 10px; }
+        .button-group button { flex: 1; }
+        
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        small { font-size: 12px; color: #666; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fas fa-envelope"></i> Email Configuration</h1>
+    <div>
+        <a href="/company/dashboard" class="btn btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Sender Settings -->
+    <div class="card">
+        <h2><i class="fas fa-paper-plane"></i> Email Sender Settings</h2>
+        
+        <div class="two-column">
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> From Email Address *</label>
+                <input type="email" id="from_email" 
+                       value="{{ config.from_email if config else '' }}"
+                       placeholder="company@example.com">
+                <small>यह email address students को भेजते समय दिखेगा</small>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> From Name *</label>
+                <input type="text" id="from_name"
+                       value="{{ config.from_name if config else '' }}"
+                       placeholder="Your Company Name">
+                <small>यह नाम email में दिखेगा (e.g., "ABC College")</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Email Template -->
+    <div class="card">
+        <h2><i class="fas fa-file-alt"></i> Email Template</h2>
+        
+        <div class="form-group">
+            <label><i class="fas fa-heading"></i> Email Subject Line *</label>
+            <input type="text" id="email_subject"
+                   value="{{ config.subject_template if config else 'Your Certificate - [Student Name]' }}"
+                   placeholder="Your Certificate - [Student Name]">
+            <small>आप variables जैसे [Student Name], [Course Name] use कर सकते हैं</small>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-pen"></i> Email Body (संपूर्ण Content) *</label>
+            <textarea id="email_body" placeholder="Dear [Student Name],&#10;&#10;Congratulations!&#10;&#10;Your certificate is attached.&#10;&#10;Verify: [Verification Link]">{{ config.body_template if config else '' }}</textarea>
+            <small>Email का पूरा content यहाँ लिखें</small>
+        </div>
+        
+        <!-- Quick Variable Buttons -->
+        <div class="variable-buttons">
+            <button type="button" onclick="addVariable('[Student Name]')">
+                <i class="fas fa-plus"></i> [Student Name]
+            </button>
+            <button type="button" onclick="addVariable('[Course Name]')">
+                <i class="fas fa-plus"></i> [Course Name]
+            </button>
+            <button type="button" onclick="addVariable('[Date]')">
+                <i class="fas fa-plus"></i> [Date]
+            </button>
+            <button type="button" onclick="addVariable('[Certificate ID]')">
+                <i class="fas fa-plus"></i> [Certificate ID]
+            </button>
+            <button type="button" onclick="addVariable('[Verification Link]')">
+                <i class="fas fa-plus"></i> [Verification Link]
+            </button>
+            <button type="button" onclick="addVariable('[Company Name]')">
+                <i class="fas fa-plus"></i> [Company Name]
+            </button>
+        </div>
+    </div>
+    
+    <!-- Available Variables Info -->
+    <div class="card">
+        <h2><i class="fas fa-info-circle"></i> Available Variables</h2>
+        
+        <div class="info-box">
+            <p><strong>📌 यह variables आप अपने email में use कर सकते हैं:</strong></p>
+            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Student Name]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Student का नाम</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Course Name]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Course का नाम</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Date]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Certificate की date</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Certificate ID]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Unique Certificate ID</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Verification Link]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">QR verification link</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; background: #f0f0f0; border: 1px solid #ddd;">
+                        <code style="background: white; padding: 4px 8px; border-radius: 3px;">[Company Name]</code>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">आपकी company का नाम</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Preview Section -->
+    <div class="card">
+        <h2><i class="fas fa-eye"></i> Preview</h2>
+        
+        <button type="button" class="btn btn-blue" onclick="previewEmail()" style="width: 100%; justify-content: center; padding: 12px;">
+            <i class="fas fa-play"></i> Preview Email कैसा दिखेगा
+        </button>
+        
+        <div class="preview-section" id="previewSection">
+            <h4>📧 Subject Line:</h4>
+            <div id="previewSubject" class="preview-content" style="margin-bottom: 15px;"></div>
+            
+            <h4>📝 Email Body:</h4>
+            <div id="previewBody" class="preview-content"></div>
+        </div>
+    </div>
+    
+    <!-- Save Section -->
+    <div class="card">
+        <div class="button-group">
+            <button type="button" class="btn btn-blue" onclick="saveEmailSettings()" style="padding: 12px 20px; font-size: 14px;">
+                <i class="fas fa-save"></i> Save Email Settings
+            </button>
+            <button type="button" class="btn btn-gray" onclick="resetForm()" style="padding: 12px 20px; font-size: 14px;">
+                <i class="fas fa-redo"></i> Reset
+            </button>
+        </div>
+        
+        <div id="statusMessage" class="status"></div>
+    </div>
+</div>
+
+<script>
+function addVariable(variable) {
+    const textarea = document.getElementById('email_body');
+    if (textarea.value && !textarea.value.endsWith(' ')) {
+        textarea.value += ' ';
+    }
+    textarea.value += variable;
+    textarea.focus();
+}
+
+function previewEmail() {
+    const subject = document.getElementById('email_subject').value;
+    const body = document.getElementById('email_body').value;
+    
+    if (!subject || !body) {
+        showStatus('error', '❌ कृपया subject और body भरें!');
+        return;
+    }
+    
+    fetch('/company/email-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, body })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('previewSubject').innerText = data.preview_subject;
+            document.getElementById('previewBody').innerText = data.preview_body;
+            document.getElementById('previewSection').style.display = 'block';
+            document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    })
+    .catch(err => showStatus('error', 'Error: ' + err));
+}
+
+function saveEmailSettings() {
+    const from_email = document.getElementById('from_email').value.trim();
+    const from_name = document.getElementById('from_name').value.trim();
+    const email_subject = document.getElementById('email_subject').value.trim();
+    const email_body = document.getElementById('email_body').value.trim();
+    
+    if (!from_email || !from_name || !email_subject || !email_body) {
+        showStatus('error', '❌ सभी fields को भरें!');
+        return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(from_email)) {
+        showStatus('error', '❌ Valid email address दें!');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('from_email', from_email);
+    formData.append('from_name', from_name);
+    formData.append('email_subject', email_subject);
+    formData.append('email_body', email_body);
+    
+    fetch('/company/email-settings', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showStatus('success', '✅ Email settings save ho gaye!');
+            setTimeout(() => {
+                document.getElementById('statusMessage').style.display = 'none';
+            }, 3000);
+        } else {
+            showStatus('error', '❌ Error: ' + data.message);
+        }
+    })
+    .catch(err => showStatus('error', 'Error: ' + err));
+}
+
+function resetForm() {
+    document.getElementById('from_email').value = '';
+    document.getElementById('from_name').value = '';
+    document.getElementById('email_subject').value = 'Your Certificate - [Student Name]';
+    document.getElementById('email_body').value = '';
+    document.getElementById('previewSection').style.display = 'none';
+}
+
+function showStatus(type, message) {
+    const elem = document.getElementById('statusMessage');
+    elem.className = 'status ' + type;
+    elem.innerHTML = message;
+}
+</script>
+
+</body>
+</html>

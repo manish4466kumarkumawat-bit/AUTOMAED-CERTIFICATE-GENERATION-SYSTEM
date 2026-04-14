@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Admin Username</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 380px; 
+            text-align: center; 
+        }
+        h3 { color: #333; margin-bottom: 20px; }
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 14px;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #607D8B; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { background: #455A64; }
+        .error { color: #f44336; font-size: 14px; margin-top: 10px; font-weight: bold; }
+        .warning { color: #666; font-size: 12px; display: block; margin: 15px 0; }
+        a { 
+            display: inline-block; 
+            margin-top: 10px; 
+            color: #2196F3; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 14px; 
+        }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>👤 Change Admin Username</h3>
+
+    <form method="POST" action="/admin/change-username">
+        <input name="old_username" placeholder="Current Username" required>
+        <input name="password" type="password" placeholder="Admin Password" required>
+        <input name="new_username" placeholder="New Username" required>
+        <button type="submit">Update Username</button>
+
+        {% if error %}
+            <p class="error">❌ {{ error }}</p>
+        {% endif %}
+    </form>
+
+    <span class="warning">⚠️ After changing, you will be logged out automatically.</span>
+    
+    <a href="/admin/dashboard">⬅ Back to Dashboard</a>
+</div>
+
+</body>
+</html>
